@@ -6,14 +6,14 @@ import 'package:xml_rpc/src/converter.dart';
 
 class XmlRpcServer {
   final Map<String, Future<XmlDocument> Function(List<dynamic>)> _bindings = {};
-  int _port;
-  String _host;
-  HttpServer _server;
+  int? _port;
+  String? _host;
+  late HttpServer _server;
 
-  int get port => _port;
-  String get host => _host;
+  int? get port => _port;
+  String? get host => _host;
 
-  XmlRpcServer({String host, int port}) {
+  XmlRpcServer({String? host, int? port}) {
     _host = host ?? InternetAddress.loopbackIPv4.address;
     _port = port ?? 80;
   }
@@ -48,7 +48,7 @@ class XmlRpcServer {
   }
 
   void startServer() async {
-    _server = await HttpServer.bind(host, port, shared: true);
+    _server = await HttpServer.bind(host, port!, shared: true);
     await for (HttpRequest request in _server) {
       var xmlRequest =
           await utf8.decoder.bind(request).join().then((value) => parse(value));
@@ -71,14 +71,14 @@ class XmlRpcServer {
   }
 }
 
-XmlDocument generateXmlResponse(List params, {List<Codec> encodeCodecs}) {
+XmlDocument generateXmlResponse(List params, {List<Codec>? encodeCodecs}) {
   encodeCodecs = encodeCodecs ?? xml_rpc.standardCodecs;
   final methodCallChildren = [
     XmlElement(
         XmlName('params'),
         [],
         params.map((p) => XmlElement(XmlName('param'), [], [
-              XmlElement(XmlName('value'), [], [encode(p, encodeCodecs)])
+              XmlElement(XmlName('value'), [], [encode(p, encodeCodecs!)])
             ])))
   ];
   return XmlDocument([
